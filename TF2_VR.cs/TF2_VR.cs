@@ -122,6 +122,7 @@ namespace WindowsGSM.Plugins
             });
         }
 
+        /*
         public async void CreateServerCFG()
         {
             //Download server.cfg
@@ -142,7 +143,7 @@ namespace WindowsGSM.Plugins
                 configText = configText.Replace("{{clientport}}", (int.Parse(serverData.ServerPort) - 10).ToString());
                 File.WriteAllText(configFile, configText);
             }
-        }
+        }*/
 
         public bool IsInstallValid()
         {
