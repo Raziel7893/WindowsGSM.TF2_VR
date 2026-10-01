@@ -16,7 +16,7 @@ namespace WindowsGSM.Plugins
             name = "WindowsGSM.TF2_VR",
             author = "Raziel7893",
             description = "WindowsGSM plugin for supporting TF2 VR Mod Dedicated Server",
-            version = "1.0",
+            version = "1.0.1",
             url = "https://github.com/Raziel7893/WindowsGSM.TF2_64bit",
             color = "#34FFeb"
         };
@@ -24,7 +24,7 @@ namespace WindowsGSM.Plugins
         public bool AllowsEmbedConsole = true;
         public int PortIncrements = 0;
         public dynamic QueryMethod = new GameServer.Query.A2S();
-        public override bool loginAnonymous => true;
+        public override bool loginAnonymous => false;
         // - Game server default values
         public string Port = "27015";
         public string QueryPort = "27015";
