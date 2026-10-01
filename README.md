@@ -5,12 +5,13 @@
 
 ### IMPORTANT POINTS, READ FIRST:
 - You need to do **Portforwarding**, if you want people outside of your house to be able to connect (look down for it)
+NOT SURE IF FOLLOWING ALSO APPLIES TO THE VR MOD:
 - If you want your Server to be Listed: (default is LAN/IP-Connect ONLY!)
   - Link the Server to your Account: Edit Config => **Server GSLT** (https://steamcommunity.com/dev/managegameservers App ID 1055600  (try the one of TF2 base if that does not work: 440))
   - **install the SteamClient( START IT ONCE**, no login, no autostart, just install and start it once)
   - go to the Server.cfg (WindowsGSM Click on **Browse => Server Files**, then go **\tf2\cfg** and open **server.cfg** with Editor)
     - Excange "sv_lan" from 1 to 0
-- Not sure if that counts for the VR MOD: The Server can not be **connected from the same Machine**. You will need to create the server ingame (Multiplayer => create) if one Machine has to act as Server AND Client.
+- The Server can not be **connected from the same Machine**. You will need to create the server ingame (Multiplayer => create) if one Machine has to act as Server AND Client.
 
 ### WindowsGSM Installation: 
 1. Download  WindowsGSM https://windowsgsm.com/ 
