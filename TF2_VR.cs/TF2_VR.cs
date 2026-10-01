@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using WindowsGSM.Functions;
 using WindowsGSM.GameServer.Engine;
 
@@ -30,12 +31,13 @@ namespace WindowsGSM.Plugins
         public string Maxplayers = "32";
 
         public string FullName = "Team Fortress 2 VR MOD Dedicated Server";
-        public string Defaultmap { get { return "cp_badlands"; } }
-        public string Game { get { return "tf"; } }
+        public string Defaultmap { get { return "ctf_2fort"; } }
+        public string Game { get { return "tfvr"; } }
         public override string AppId { get { return "4957840"; } }
-        public string Additional { get { return "-tickrate 64"; } }
+        public string Additional { get { return "-tickrate 64 +sv_lan 0 +sv_hibernate_when_empty 0 +log on +heartbeat"; } }
 
-        public override string StartPath => "srcds.exe";
+        public override string StartPath => "srcds_win64.exe";
+
 
         public TF2_VR(Functions.ServerConfig serverData) : base(serverData)
         {
@@ -58,10 +60,10 @@ namespace WindowsGSM.Plugins
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append($"-console");
+            sb.Append($"-console -condebug");
             sb.Append(string.IsNullOrWhiteSpace(Game) ? string.Empty : $" -game {Game}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerIP) ? string.Empty : $" -ip {serverData.ServerIP}");
-            sb.Append(string.IsNullOrWhiteSpace(serverData.ServerPort) ? string.Empty : $" -port {serverData.ServerPort}");
+            sb.Append(string.IsNullOrWhiteSpace(serverData.ServerPort) ? string.Empty : $" -secure -port {serverData.ServerPort}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerMaxPlayer) ? string.Empty : $" -maxplayers{(AppId == "740" ? "_override" : "")} {serverData.ServerMaxPlayer}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerGSLT) ? string.Empty : $" +sv_setsteamaccount {serverData.ServerGSLT}");
             sb.Append(string.IsNullOrWhiteSpace(serverData.ServerParam) ? string.Empty : $" {serverData.ServerParam}");
@@ -142,12 +144,39 @@ namespace WindowsGSM.Plugins
             }
         }
 
-        public new bool IsInstallValid()
+        public bool IsInstallValid()
         {
-            string checkPath = StartPath ?? "srcds.exe";    //why null here?
-            string installPath = Functions.ServerPath.GetServersServerFiles(serverData.ServerID, checkPath);
+            string installPath = Functions.ServerPath.GetServersServerFiles(serverData.ServerID, StartPath);
             Error = $"Fail to find {installPath}";
             return File.Exists(installPath);
+        }
+
+        public bool IsImportValid(string path)
+        {
+            string importPath = Path.Combine(path, StartPath);
+            Error = $"Invalid Path! Fail to find {Path.GetFileName(StartPath)}";
+            return File.Exists(importPath);
+        }
+
+        public async Task<Process> Install()
+        {
+            var steamCMD = new Installer.SteamCMD();
+            string combinedAppId = $"{AppId} validate +app_update 232250 validate +app_update 244310";
+            Process p = await steamCMD.Install(serverData.ServerID, string.Empty, combinedAppId, true, loginAnonymous);
+            Error = steamCMD.Error;
+
+            return p;
+        }
+        public async Task<Process> Update(bool validate = false, string custom = null)
+        {
+            string validateString = validate ? "validate" : "";
+            string combinedAppId = $"{AppId} {validateString} +app_update 232250 {validateString} +app_update 244310";
+            //we always validate. it is important that the bin\x64\engine.dll is always used from the SDK (244310). if we pass a fixed validate=true to the installer, it should always restore that engine instead of using the TF2 one
+            var (p, error) = await Installer.SteamCMD.UpdateEx(serverData.ServerID, combinedAppId, true, custom: custom, loginAnonymous: loginAnonymous);
+
+            await Task.Run(() => { p.WaitForExit(); });
+            Error = error;
+            return p;
         }
     }
 }
